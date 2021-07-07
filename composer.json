@@ -11,7 +11,8 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.40",
         "laravel/tinker": "^2.5",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+      "ext-json": "*"
     },
     "require-dev": {
         "bennett-treptow/laravel-migration-generator": "^3.2",
