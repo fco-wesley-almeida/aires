@@ -8,7 +8,7 @@ use App\Src\Data\Dao\Db;
 
 abstract class MySqlConnection extends Db
 {
-    abstract protected function configureAcessCredentials(): void;
+    abstract protected function configureAccessCredentials(): void;
 
     protected function configurePDOConfig(): void {
         $this->pdoConfig = "mysql:host={$this->hostspec};dbname={$this->database};charset=UTF8";

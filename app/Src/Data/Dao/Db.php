@@ -1,12 +1,18 @@
 <?php
 namespace App\Src\Data\Dao;
 
-//use App\Services\LogService;
+use App\Src\Business\Services\LogService;
+use App\Src\Data\Exceptions\DatabaseConnectionException;
+use App\Src\Data\Exceptions\DatabaseQueryException;
+use App\Src\Data\Exceptions\InvalidEnvironmentException;
+use App\Src\Data\Exceptions\PdoBindingFailureException;
+use App\Src\Data\Exceptions\PdoFetchFailureException;
 use Exception;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use PDO;
 use PDOException;
 use PDOStatement;
-use stdClass;
 
 /**
  * Class DatabaseConn
@@ -14,78 +20,102 @@ use stdClass;
  */
 abstract class Db {
 
+    /**
+     * @var string
+     */
     protected string $username;
+    /**
+     * @var string
+     */
     protected string $hostspec;
+    /**
+     * @var string
+     */
     protected string $password;
+    /**
+     * @var string
+     */
     protected string $database;
+    /**
+     * @var string
+     */
     protected string $pdoConfig;
+    /**
+     * @var PDO|null
+     */
     protected ?PDO $connection;
-    protected array $resultArray;
+    /**
+     * @var PDOStatement|null
+     */
+    protected ?PDOStatement $stmt;
+    /**
+     * @var int
+     */
     protected int $countRow;
+    /**
+     * @var string|mixed
+     */
     protected string $environment;
-    protected $dbSearchObj;
-    protected $resultObj;
-    protected $error;
+    /**
+     * @var string
+     */
+    protected string $sql;
     private bool $keepConnectionAlive;
     protected const DEVELOPMENT = 'dev';
     protected const QA = 'qa';
     protected const PRODUCTION = 'prod';
-    public const FETCH_AS_SINGLE_OBJ = 4;
-    public const FETCH_AS_OBJ_ARR = 5;
-    public const FETCH_AS_ASSOC_ARR = 6;
-
-    // colocar os erros corretos
-
 
     /**
      * DatabaseConn constructor.
+     * @throws InvalidEnvironmentException
      */
     public final function __construct(bool $keepConnectionAlive = false)
     {
         $this->keepConnectionAlive = $keepConnectionAlive;
         $this->environment = env('ENVIRONMENT');
+        if (!in_array($this->environment, [self::DEVELOPMENT, self::QA, self::PRODUCTION]))
+        {
+            throw new InvalidEnvironmentException($this->environment);
+        }
     }
 
-    abstract protected function configureAcessCredentials(): void;
+    abstract protected function configureAccessCredentials(): void;
     abstract protected function configurePDOConfig(): void;
     abstract protected function configureAfterConnection(): void;
 
-//    public function getError(): DatabaseError {
-//        return $this->error;
-//    }
-
     /**
-     * @return bool
+     * @return void
+     * @throws DatabaseConnectionException
      */
-    public final function connect(): bool
+    public final function connect(): void
     {
-        $this->configureAcessCredentials();
+        $this->configureAccessCredentials();
         $this->configurePDOConfig();
         try {
             $this->connection = new PDO($this->pdoConfig, $this->username, $this->password);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->configureAfterConnection();
-//            LogService::logInfo("Uma conexão com o banco de dados {$this->hostspec}:{$this->database} foi estabelecida.", $_SERVER);
-            return true;
+            Log::info("A connection with the database {$this->database} on host {$this->hostspec} was established.");
         } catch (PDOException $pdoException) {
-            $this->logPDOException($pdoException, "Uma conexão com o banco de dados {$this->hostspec}:{$this->database} não pôde ser realizada.");
-            return false;
+            LogService::logPdoException($pdoException);
+            throw new DatabaseConnectionException($this);
         }
     }
 
 
     /**
-     * @param PDOStatement $stmt
      * @param array $binds
      * @param string $sql
      * @return void
-     * @throws Exception
+     * @throws PdoBindingFailureException
      */
-    private function configureBinds(PDOStatement $stmt, array $binds, string $sql): void
+    private function configureBinds(array $binds, string $sql): void
     {
         foreach ($binds as $key => $value) {
             if (preg_match('/^bin_/', $key)) {
-                $stmt->bindValue(":$key", $value, PDO::PARAM_LOB);
+                if (!$this->stmt->bindValue(":$key", $value, PDO::PARAM_LOB)) {
+                    throw new PdoBindingFailureException($this->sql, $key, $value, PDO::PARAM_LOB);
+                }
                 continue;
             }
             $type = gettype($value);
@@ -101,118 +131,79 @@ abstract class Db {
                 'unknown type' => - 1
             ][$type];
             if ($pdoParamType === -1) {
-                $bindsJSON = json_encode($binds);
-                throw new Exception("Erro na consulta \"$sql\": o parâmetro $key tem erro em sua tipagem: $type. Binds: $bindsJSON");
+                throw new PdoBindingFailureException($this->sql, $key, $value, $pdoParamType);
             }
-            $stmt->bindValue(":$key", $value, $pdoParamType);
+            if (!$this->stmt->bindValue(":$key", $value, $pdoParamType)) {
+                throw new PdoBindingFailureException($this->sql, $key, $value, $pdoParamType);
+            }
         }
     }
 
     /**
-     * @param PDOStatement $stmt
-     * @return bool
+     * @param callable|null $mapper
+     * @return Collection
+     * @throws PdoFetchFailureException
      */
-    private function fetchResultAsArray(PDOStatement $stmt): bool
+    public function getResultArray(?callable $mapper = null): Collection
     {
-        $this->resultArray = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $resultColl = collect([]);
+        if (!$this->stmt)
+        {
+            throw new PdoFetchFailureException($this, "PdoStatement is null on getResultArray method.");
+        }
+        while ($row = $this->stmt->fetch(PDO::FETCH_ASSOC)) {
             if ($row === false) {
-                return false;
+                throw new PdoFetchFailureException($this, "Result row is false on getResultArray method.");
             }
-            $encodedRow = [];
-            foreach ($row as $key => $value) {
-                $encodedRow[$key] = utf8_encode($value);
-            }
-            $this->resultArray[] = $encodedRow;
+            $resultColl[] = $mapper ? $mapper($row) : $row;
         }
-        return true;
+        if (!$this->keepConnectionAlive)
+        {
+           $this->disconnect();
+        }
+        return $resultColl;
     }
 
     /**
-     * @param PDOStatement $stmt
-     * @param string $objectFetch
-     * @return bool
+     * @param callable|null $mapper
+     * @return mixed
+     * @throws PdoFetchFailureException
      */
-    private function fetchResultAsSingleObject(PDOStatement $stmt, string $objectFetch): bool
+    public function getResultObj(?callable $mapper = null)
     {
-        // If $objectFetch is defined, so fetch the result as $objectFetch. Else, fetch result as stdclass.
-        $obj = $objectFetch ? $stmt->fetchObject($objectFetch) : $stmt->fetch(PDO::FETCH_OBJ);
-        if ($obj) {
-            if ($objectFetch) {
-                $this->dbSearchObj = $obj;
-            } else {
-                $this->resultObj = $obj;
-            }
+        if (!$this->stmt)
+        {
+            throw new PdoFetchFailureException($this, "PdoStatement is null on getResultObj method.");
         }
-        return !!$obj;
-    }
-
-    /**
-     * @param PDOStatement $stmt
-     * @param string $objectFetch
-     * @return bool
-     */
-    private function fetchResultAsObjectsArray(PDOStatement $stmt, string $objectFetch): bool
-    {
-        $resultArray = $stmt->fetchAll(PDO::FETCH_CLASS, $objectFetch);
-        $sucessFetch = $resultArray !== false;
-        if ($sucessFetch) {
-            $this->resultArray = $resultArray;
+        $fetchedObj = $this->stmt->fetch(PDO::FETCH_ASSOC);
+        if ($fetchedObj === false)
+        {
+            throw new PdoFetchFailureException($this);
         }
-        return $sucessFetch;
-    }
-
-    /**
-     * @param PDOStatement $stmt
-     * @return bool
-     */
-    private function fetchResultAsStdClassObjArray(PDOStatement $stmt): bool
-    {
-        $resultArray = $stmt->fetchAll(PDO::FETCH_OBJ);
-        $sucessFetch = $resultArray !== false;
-        if ($sucessFetch) {
-            $this->resultArray = $resultArray;
+        $mappedObj = $mapper ? $mapper($fetchedObj) : $fetchedObj;
+        if (!$this->keepConnectionAlive)
+        {
+            $this->disconnect();
         }
-        return $sucessFetch;
+        return $mappedObj;
     }
 
     /**
      * @param string $sql
      * @param array $binds
-     * @param int $fetchConfig
-     * @param string $objectFetch
      * @return bool
      * @throws Exception
      */
-    public final function query(string $sql, array $binds = [], int $fetchConfig = self::FETCH_AS_ASSOC_ARR, string $objectFetch = ''): bool
+    public final function query(string $sql, array $binds = []): bool
     {
+        $this->sql = $sql;
         try {
-//            LogService::logInfo("A seguinte consulta SQL foi realizada: $sql.", $binds);
-            $stmt = $this->connection->prepare($sql);
-            $this->configureBinds($stmt, $binds, $sql);
-            $stmt->execute();
-            $result = false;
-            switch ($fetchConfig){
-                case self::FETCH_AS_ASSOC_ARR:
-                    $result = $this->fetchResultAsArray($stmt);
-                    break;
-                case self::FETCH_AS_OBJ_ARR:
-                    $result =  $objectFetch
-                        ? $this->fetchResultAsObjectsArray($stmt, $objectFetch)
-                        : $this->fetchResultAsStdClassObjArray($stmt);
-                    break;
-                case self::FETCH_AS_SINGLE_OBJ:
-                    $result = $this->fetchResultAsSingleObject($stmt, $objectFetch);
-                    break;
-            }
-            if (!$this->keepConnectionAlive) {
-                $this->disconnect();
-            }
-            return $result;
+            $this->stmt = $this->connection->prepare($this->sql);
+            $this->configureBinds($binds, $this->sql);
+            return $this->stmt->execute();
         } catch (PDOException $pdoException) {
-            $this->storeError($pdoException);
-            $this->logPDOException($pdoException, "Ocorreu uma falha na consulta \"$sql\".");
-            return false;
+            LogService::logPdoException($pdoException);
+            throw new DatabaseQueryException($this, $binds);
         }
     }
 
@@ -227,62 +218,12 @@ abstract class Db {
     }
 
     /**
-     * @param PDOException $pdoException
-     * @param string $message
-     */
-    private function logPDOException (PDOException $pdoException, string $message): void {
-        $pdoExceptionArray = [
-            $pdoException->getCode(),
-            $pdoException->getMessage(),
-            $pdoException->getTraceAsString(),
-            $pdoException->errorInfo
-        ];
-//        LogService::logError($pdoException->getCode(), $message, $pdoExceptionArray);
-    }
-
-    /**
-     * @param PDOException $pdoException
-     */
-    private function storeError (PDOException $pdoException): void
-    {
-//        $this->error = new DatabaseError();
-//        $this->error->setCode($pdoException->getCode());
-//        $this->error->setMessage($pdoException->getMessage());
-    }
-
-    /**
      *
      * @return string
      */
     public final function getUsername(): string
     {
         return $this->username;
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public final function getResultArray(?callable $mapper = null): array
-    {
-        if (!$mapper) {
-           return $this->resultArray;
-        }
-        $resultArray = [];
-        foreach ($this->resultArray as $row)
-        {
-            $resultArray[] = $mapper($row);
-        }
-        return $resultArray;
-    }
-
-    /**
-     *
-     * @return stdClass
-     */
-    public final function getResultObj(): stdClass
-    {
-        return $this->resultObj;
     }
 
     /**
@@ -331,6 +272,11 @@ abstract class Db {
         return $this->countRow;
     }
 
+    public final function getSql(): string
+    {
+       return $this->sql;
+    }
+
     /**
      *
      * @param string $username
@@ -369,20 +315,11 @@ abstract class Db {
 
     /**
      *
-     * @param PDO $connection
+     * @param ?PDO $connection
      */
     public final function setConnection(?PDO $connection): void
     {
         $this->connection = $connection;
-    }
-
-    /**
-     *
-     * @param array $resultArray
-     */
-    public final function setResultArray(array $resultArray): void
-    {
-        $this->resultArray = $resultArray;
     }
 
     /**
@@ -393,5 +330,6 @@ abstract class Db {
     {
         $this->countRow = $countRow;
     }
+
 }
-?>
+

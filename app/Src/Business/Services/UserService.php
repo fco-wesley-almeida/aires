@@ -15,10 +15,6 @@ class UserService
      */
     public static function getUserList(): Collection
     {
-        try {
-            return UserDb::getUserList();
-        } catch (Exception $e) {
-            var_dump($e);
-        }
+        return UserDb::getUserList();
     }
 }

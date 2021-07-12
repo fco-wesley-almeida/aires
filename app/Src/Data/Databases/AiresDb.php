@@ -6,7 +6,7 @@ namespace App\Src\Data\Databases;
 
 class AiresDb extends MySqlConnection
 {
-    protected function configureAcessCredentials(): void
+    protected function configureAccessCredentials(): void
     {
         $connectionConfig = [
             parent::DEVELOPMENT => [
