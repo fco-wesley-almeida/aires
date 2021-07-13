@@ -178,6 +178,7 @@ abstract class Db {
         $fetchedObj = $this->stmt->fetch(PDO::FETCH_ASSOC);
         if ($fetchedObj === false)
         {
+            $this->disconnect();
             throw new PdoFetchFailureException($this);
         }
         $mappedObj = $mapper ? $mapper($fetchedObj) : $fetchedObj;
@@ -213,7 +214,7 @@ abstract class Db {
      */
     public final function disconnect(): void
     {
-//        LogService::logInfo("A conexão com o banco de dados {$this->hostspec}:{$this->database} foi fechada.", $_SERVER);
+        LogService::logInfo("A connection with the database {$this->getDatabase()} on host {$this->getHostspec()} was closed.");
         $this->connection = null;
     }
 

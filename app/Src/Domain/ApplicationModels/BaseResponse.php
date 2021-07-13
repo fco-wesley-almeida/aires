@@ -55,7 +55,8 @@ class BaseResponse extends \App\Src\Domain\Model
         {
             return $response;
         }
-        if (gettype($this->data) !== 'array')
+        $dataType = gettype($this->data);
+        if (!in_array($dataType, ['array', 'integer', 'string']))
         {
             $this->data = $this->data->toArray();
         }

@@ -4,12 +4,14 @@
 namespace App\Src\Data\Dao;
 
 
+use App\Src\Business\Exceptions\NotFoundException;
 use App\Src\Data\Dao\Interfaces\DbInstance;
 use App\Src\Data\Databases\AiresDb;
 use App\Src\Data\Exceptions\DatabaseConnectionException;
-use App\Src\Data\Exceptions\DatabaseQueryException;
 use App\Src\Data\Exceptions\PdoFetchFailureException;
 use App\Src\Domain\EntityModels\User;
+use App\Src\Domain\Model;
+use App\Src\Domain\ResponseModels\UserResponseModel;
 use Exception;
 use Illuminate\Support\Collection;
 
@@ -17,12 +19,15 @@ class UserDb implements DbInstance
 {
     public static function mapper(): callable
     {
-        return function (array $row): User
+        return function (array $row): UserResponseModel
         {
-            $user = new User;
-            $user->setId($row['id']);
-            $user->setEmail($row['email']);
-            $user->setNickname($row['nickname']);
+            $user = UserResponseModel::Builder()
+                ->setUserId($row['userId'])
+                ->setNickname($row['nickname'])
+                ->setEmail($row['email'])
+                ->setAlias($row['alias'])
+                ->setCostumerId($row['costumerId'])
+                ->setName($row['name']);
             return $user;
         };
     }
@@ -37,14 +42,51 @@ class UserDb implements DbInstance
         $db = new AiresDb();
         $sql = <<<SQL
             SELECT
-                u.id,
-                u.email,
-                u.nickname
-            FROM `user` u
+                u.id AS userId,
+                u.nickname AS nickname,
+                u.email AS email,
+                IF (p.name IS NULL, '', p.name) AS name,
+                IF (p.alias IS NULL, '', p.alias) AS alias,
+                IF (c.id IS NULL, 0 , c.id) AS costumerId
+            FROM user u
+            LEFT JOIN person p on u.id = p.user_id
+            LEFT JOIN customer c on u.id = c.user_id
         SQL;
         $binds = [];
         $db->connect();
         $db->query($sql, $binds);
-        return $db->getResultArray(self::mapper());
+        $userList = $db->getResultArray(self::mapper());
+        return $userList;
+    }
+
+    /**
+     * @throws DatabaseConnectionException
+     * @throws PdoFetchFailureException
+     * @throws Exception
+     */
+    public static function getUserById(int $userId): UserResponseModel
+    {
+        $db = new AiresDb();
+        $sql = <<<SQL
+            SELECT
+                u.id AS userId,
+                u.nickname AS nickname,
+                u.email AS email,
+                IF (p.name IS NULL, '', p.name) AS name,
+                IF (p.alias IS NULL, '', p.alias) AS alias,
+                IF (c.id IS NULL, 0 , c.id) AS costumerId
+            FROM user u
+            LEFT JOIN person p on u.id = p.user_id
+            LEFT JOIN customer c on u.id = c.user_id
+            WHERE
+                u.id = :userId
+        SQL;
+        $binds = [
+            'userId' => $userId
+        ];
+        $db->connect();
+        $db->query($sql, $binds);
+        $user = $db->getResultObj(self::mapper());
+        return $user;
     }
 }

@@ -7,7 +7,10 @@ use App\Src\Business\Services\LogService;
 use App\Src\Business\Services\UserService;
 use App\Src\Domain\ApplicationModels\BaseResponse;
 use App\Src\Domain\ApplicationModels\SystemDefaultException;
-use Exception;
+use App\Src\Domain\RequestModels\UserCreateRequestModel;
+use Faker\Provider\Base;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -27,14 +30,44 @@ class UserController extends Controller
             LogService::logSystemException($exception);
             $exception->respond();
         }
-        catch (Exception $exception)
+    }
+    public function getUser(int $userId): void
+    {
+        try
         {
-            LogService::logException($exception);
-            $this->breakApp();
+            $user = UserService::getUserById($userId)->toArray();
+            BaseResponse::builder()
+                ->setMessage("User found")
+                ->setData($user)
+                ->respond();
+        }
+        catch (SystemDefaultException $exception)
+        {
+            LogService::logSystemException($exception);
+            $exception->respond();
         }
     }
-    public function getUser(int $userId): array
+
+    public function createUser()
     {
-        return ['a' => $userId];
+        $user = new UserCreateRequestModel();
+        try {
+            $id = UserService::createUser($user);
+            if (!$id)
+            {
+                BaseResponse::builder()
+                    ->setMessage("Failure on user registration.")
+                    ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+                    ->respond();
+            }
+            BaseResponse::builder()
+                ->setData($id)
+                ->setMessage("User registered.")
+                ->respond();
+        }
+        catch (SystemDefaultException $exception)
+        {
+            $exception->respond();
+        }
     }
 }

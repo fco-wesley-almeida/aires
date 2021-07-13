@@ -20,7 +20,7 @@ class Person extends Model
      * @var string
      */
     protected $table = 'person';
-
+    public $timestamps = false;
     /**
      * @var array
      */
@@ -31,6 +31,6 @@ class Person extends Model
      */
     public function user()
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\User');
+        return $this->belongsTo(User::class);
     }
 }

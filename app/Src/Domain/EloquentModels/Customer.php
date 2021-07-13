@@ -24,7 +24,7 @@ class Customer extends Model
      * @var string
      */
     protected $table = 'customer';
-
+    public $timestamps = false;
     /**
      * @var array
      */
@@ -35,7 +35,7 @@ class Customer extends Model
      */
     public function user()
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\User');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -43,7 +43,7 @@ class Customer extends Model
      */
     public function conversationMessages()
     {
-        return $this->hasMany('App\ConversationMessage');
+        return $this->hasMany(ConversationMessage::class);
     }
 
     /**
@@ -51,7 +51,7 @@ class Customer extends Model
      */
     public function friends()
     {
-        return $this->hasMany('App\Friend');
+        return $this->hasMany(Friend::class);
     }
 
     /**
@@ -59,7 +59,7 @@ class Customer extends Model
      */
     public function requesterFriendshipInvitations()
     {
-        return $this->hasMany('App\FriendshipInvitation', 'requester_customer_id');
+        return $this->hasMany(FriendshipInvitation::class, 'requester_customer_id');
     }
 
     /**
@@ -67,7 +67,7 @@ class Customer extends Model
      */
     public function targetFriendshipInvitations()
     {
-        return $this->hasMany('App\FriendshipInvitation', 'target_customer_id');
+        return $this->hasMany(FriendshipInvitation::class, 'target_customer_id');
     }
 
     /**
@@ -75,7 +75,7 @@ class Customer extends Model
      */
     public function groupParticipants()
     {
-        return $this->hasMany('App\GroupParticipant');
+        return $this->hasMany(GroupParticipant::class);
     }
 
     /**
@@ -83,7 +83,7 @@ class Customer extends Model
      */
     public function posts()
     {
-        return $this->hasMany('App\Post', 'author_customer_id');
+        return $this->hasMany(Post::class, 'author_customer_id');
     }
 
     /**
@@ -91,6 +91,6 @@ class Customer extends Model
      */
     public function postComments()
     {
-        return $this->hasMany('App\PostComment');
+        return $this->hasMany(PostComment::class);
     }
 }

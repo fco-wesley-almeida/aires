@@ -19,3 +19,11 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
+//Route::get('/user', function ()
+//{
+//    $userController = new UserController();
+//    $userController->getUserList();
+//});
+//Route::get('/user/{id}', [UserController::class, 'getUser']);
+//Route::post('/user', [UserController::class, 'createUser']);
+

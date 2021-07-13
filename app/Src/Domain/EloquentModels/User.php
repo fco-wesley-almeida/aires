@@ -21,6 +21,7 @@ class User extends Model
      * @var string
      */
     protected $table = 'user';
+    public $timestamps = false;
 
     /**
      * @var array
@@ -32,7 +33,7 @@ class User extends Model
      */
     public function admins()
     {
-        return $this->hasMany('App\Admin');
+        return $this->hasMany(Admin::class);
     }
 
     /**
@@ -40,7 +41,7 @@ class User extends Model
      */
     public function customers()
     {
-        return $this->hasMany('App\Customer');
+        return $this->hasMany(Customer::class);
     }
 
     /**
@@ -48,7 +49,7 @@ class User extends Model
      */
     public function passwords()
     {
-        return $this->hasMany('App\Password');
+        return $this->hasMany(Password::class);
     }
 
     /**
@@ -56,6 +57,6 @@ class User extends Model
      */
     public function people()
     {
-        return $this->hasMany('App\Person');
+        return $this->hasMany(Person::class);
     }
 }

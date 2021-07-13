@@ -18,6 +18,7 @@ class Password extends Model
      * @var string
      */
     protected $table = 'password';
+    public $timestamps = false;
 
     /**
      * @var array
@@ -29,6 +30,6 @@ class Password extends Model
      */
     public function user()
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\User');
+        return $this->belongsTo(User::class);
     }
 }
