@@ -5,11 +5,11 @@ namespace App\Src\Application\Controllers;
 use App\Src\Business\Mappers\GenericMapper;
 use App\Src\Business\Services\LogService;
 use App\Src\Business\Services\UserService;
+use App\Src\Business\Utils\HttpUtils;
+use App\Src\Business\Validations\UserCreateValidation;
 use App\Src\Domain\ApplicationModels\BaseResponse;
 use App\Src\Domain\ApplicationModels\SystemDefaultException;
 use App\Src\Domain\RequestModels\UserCreateRequestModel;
-use Faker\Provider\Base;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -50,11 +50,12 @@ class UserController extends Controller
 
     public function createUser()
     {
-        $user = new UserCreateRequestModel();
         try {
+            $validation = new UserCreateValidation();
+            $validation->applyValidations(HttpUtils::requestBody());
+            $user = new UserCreateRequestModel();
             $id = UserService::createUser($user);
-            if (!$id)
-            {
+            if (!$id) {
                 BaseResponse::builder()
                     ->setMessage("Failure on user registration.")
                     ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
@@ -64,9 +65,7 @@ class UserController extends Controller
                 ->setData($id)
                 ->setMessage("User registered.")
                 ->respond();
-        }
-        catch (SystemDefaultException $exception)
-        {
+        } catch (SystemDefaultException $exception) {
             $exception->respond();
         }
     }

@@ -12,6 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 class ValidationErrorException extends SystemDefaultException
 {
     protected array $errors;
+    public function __construct(array $errors)
+    {
+        $this->errors = $errors;
+        parent::__construct();
+    }
+
     public function respond(): void
     {
         BaseResponse::builder()

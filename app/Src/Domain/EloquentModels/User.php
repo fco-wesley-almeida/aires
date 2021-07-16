@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -28,34 +29,40 @@ class User extends Model
      */
     protected $fillable = ['email', 'nickname'];
 
+
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @var array
      */
-    public function admins()
+    public const uniqueKeys = ['email_iudex' , 'nickname_iudex'];
+
+    /**
+     * @return HasMany
+     */
+    public function admins(): HasMany
     {
         return $this->hasMany(Admin::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function customers()
+    public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function passwords()
+    public function passwords(): HasMany
     {
         return $this->hasMany(Password::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function people()
+    public function people(): HasMany
     {
         return $this->hasMany(Person::class);
     }
