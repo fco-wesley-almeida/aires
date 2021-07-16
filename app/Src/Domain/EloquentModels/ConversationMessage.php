@@ -32,7 +32,7 @@ class ConversationMessage extends Model
      */
     public function conversation(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Conversation');
+        return $this->belongsTo(Conversation::class);
     }
 
     /**
@@ -40,6 +40,6 @@ class ConversationMessage extends Model
      */
     public function customer()
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Customer');
+        return $this->belongsTo(Customer::class);
     }
 }

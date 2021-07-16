@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -26,18 +27,18 @@ class GroupParticipant extends Model
     protected $fillable = ['customer_id', 'group_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function customer()
+    public function customer(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Customer');
+        return $this->belongsTo(Customer::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function group()
+    public function group(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Group');
+        return $this->belongsTo(Group::class);
     }
 }

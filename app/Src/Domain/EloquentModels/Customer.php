@@ -3,6 +3,8 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -31,65 +33,65 @@ class Customer extends Model
     protected $fillable = ['user_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function conversationMessages()
+    public function conversationMessages(): HasMany
     {
         return $this->hasMany(ConversationMessage::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function friends()
+    public function friends(): HasMany
     {
         return $this->hasMany(Friend::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function requesterFriendshipInvitations()
+    public function requesterFriendshipInvitations(): HasMany
     {
         return $this->hasMany(FriendshipInvitation::class, 'requester_customer_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function targetFriendshipInvitations()
+    public function targetFriendshipInvitations(): HasMany
     {
         return $this->hasMany(FriendshipInvitation::class, 'target_customer_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function groupParticipants()
+    public function groupParticipants(): HasMany
     {
         return $this->hasMany(GroupParticipant::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function posts()
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'author_customer_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function postComments()
+    public function postComments(): HasMany
     {
         return $this->hasMany(PostComment::class);
     }

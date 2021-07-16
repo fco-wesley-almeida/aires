@@ -4,13 +4,10 @@
 namespace App\Src\Data\Dao;
 
 
-use App\Src\Business\Exceptions\NotFoundException;
 use App\Src\Data\Dao\Interfaces\DbInstance;
 use App\Src\Data\Databases\AiresDb;
 use App\Src\Data\Exceptions\DatabaseConnectionException;
 use App\Src\Data\Exceptions\PdoFetchFailureException;
-use App\Src\Domain\EntityModels\User;
-use App\Src\Domain\Model;
 use App\Src\Domain\ResponseModels\UserResponseModel;
 use Exception;
 use Illuminate\Support\Collection;

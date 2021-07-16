@@ -3,6 +3,9 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
@@ -29,34 +32,34 @@ class Post extends Model
     protected $fillable = ['author_customer_id', 'register_date', 'likes'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function customer()
+    public function customer(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Customer', 'author_customer_id');
+        return $this->belongsTo(Customer::class, 'author_customer_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function postComments()
+    public function postComments(): HasMany
     {
-        return $this->hasMany('App\PostComment');
+        return $this->hasMany(PostComment::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function postImages()
+    public function postImages(): HasMany
     {
-        return $this->hasMany('App\PostImage');
+        return $this->hasMany(PostImage::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
-    public function postText()
+    public function postText(): HasOne
     {
-        return $this->hasOne('App\PostText', 'post_id');
+        return $this->hasOne(PostText::class, 'post_id');
     }
 }

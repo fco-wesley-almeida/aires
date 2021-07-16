@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -27,18 +28,18 @@ class FriendshipInvitation extends Model
     protected $fillable = ['requester_customer_id', 'target_customer_id', 'accepted'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function requesterCustomer()
+    public function requesterCustomer(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Customer', 'requester_customer_id');
+        return $this->belongsTo(Customer::class, 'requester_customer_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function targetCustomer()
+    public function targetCustomer(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Customer', 'target_customer_id');
+        return $this->belongsTo(Customer::class, 'target_customer_id');
     }
 }

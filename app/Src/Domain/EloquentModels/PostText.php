@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -25,10 +26,10 @@ class PostText extends Model
     protected $fillable = ['post_id', 'text'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function post()
+    public function post(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Post');
+        return $this->belongsTo(Post::class);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -28,18 +29,18 @@ class PostComment extends Model
     protected $fillable = ['post_id', 'customer_id', 'text', 'likes'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function customer()
+    public function customer(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Customer');
+        return $this->belongsTo(Customer::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function post()
+    public function post(): BelongsTo
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Post');
+        return $this->belongsTo(Post::class);
     }
 }

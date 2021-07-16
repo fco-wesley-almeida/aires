@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EloquentModel extends Model
 {
-    public function create (Entity $entity)
-    {
-        $a = parent::create($entity->toArray());
-    }
+//    public function create (Entity $entity)
+//    {
+//        $a = parent::create($entity->toArray());
+//    }
 }

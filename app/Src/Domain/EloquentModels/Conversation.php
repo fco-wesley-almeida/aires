@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -23,10 +24,10 @@ class Conversation extends Model
     protected $fillable = [];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function conversationMessages()
     {
-        return $this->hasMany('App\ConversationMessage');
+        return $this->hasMany(ConversationMessage::class);
     }
 }

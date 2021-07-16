@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -26,18 +27,18 @@ class Friend extends Model
     protected $fillable = ['customer_id', 'friendship_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function customer()
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Customer');
+        return $this->belongsTo(Customer::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function friendship()
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\Friendship');
+        return $this->belongsTo(Friendship::class);
     }
 }

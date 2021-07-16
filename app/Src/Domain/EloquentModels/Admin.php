@@ -4,6 +4,7 @@ namespace App\Src\Domain\EloquentModels;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -25,10 +26,10 @@ class Admin extends Model
     protected $fillable = ['user_id'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user()
     {
-        return $this->belongsTo('App\Src\Domain\EloquentModels\User');
+        return $this->belongsTo(User::class);
     }
 }

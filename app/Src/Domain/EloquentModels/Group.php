@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -24,10 +25,10 @@ class Group extends Model
     protected $fillable = ['name'];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function groupParticipants()
+    public function groupParticipants(): HasMany
     {
-        return $this->hasMany('App\GroupParticipant');
+        return $this->hasMany(GroupParticipant::class);
     }
 }

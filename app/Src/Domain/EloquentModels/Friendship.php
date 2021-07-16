@@ -3,6 +3,7 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -23,10 +24,10 @@ class Friendship extends Model
     protected $fillable = [];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function friends()
     {
-        return $this->hasMany('App\Friend');
+        return $this->hasMany(Friend::class);
     }
 }
