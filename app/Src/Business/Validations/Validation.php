@@ -59,7 +59,7 @@ abstract class Validation
             if ($value === null) {
                 return '';
             } else {
-                $isValid = preg_match('/^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/i', $value);
+                $isValid = preg_match('/.*@.*\..*/', $value);
                 return $isValid ? '' : $errorMessage;
             }
         };

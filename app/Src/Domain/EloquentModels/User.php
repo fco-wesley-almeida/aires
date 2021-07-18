@@ -22,6 +22,11 @@ class User extends Model
      * @var string
      */
     protected $table = 'user';
+
+    public int $id;
+    public string $email;
+    public string $nickname;
+
     public $timestamps = false;
 
     /**

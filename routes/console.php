@@ -1,5 +1,6 @@
 <?php
 
+use App\Routines\EloquentModelsGeneration\EloquentModelsGeneration;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -18,6 +19,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('teste', function () {
+Artisan::command('generate-models', function () {
+    $eloquentModelsGeneration = new EloquentModelsGeneration();
+    $eloquentModelsGeneration->run();
 })->purpose('Display an inspiring quote');
 
