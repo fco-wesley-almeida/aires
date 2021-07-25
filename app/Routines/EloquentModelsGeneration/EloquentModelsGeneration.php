@@ -7,11 +7,12 @@ namespace App\Routines\EloquentModelsGeneration;
 use App\Src\Data\Databases\AiresDb;
 use Exception;
 use Illuminate\Support\Collection;
+use phpDocumentor\Reflection\Types\Integer;
 
 class EloquentModelsGeneration
 {
-    private string $namespace = 'App\Src\Domain\EloquentModels';
-    private string $extends = 'Model';
+    public const NAMESPACE = 'App\Src\Domain\EloquentModels';
+    public const EXTENDS = 'Model';
 
     private function mapperSchemaModel(): callable
     {
@@ -22,14 +23,14 @@ class EloquentModelsGeneration
             $schemaModel->columnName = $row['COLUMN_NAME'];
             $schemaModel->ordinalPosition = $row['ORDINAL_POSITION'];
             $schemaModel->isNullable = $row['IS_NULLABLE'];
-            $schemaModel->dataType = $row['DATA_TYPE'];
+            $schemaModel->dataType = $this->mapType($row['DATA_TYPE']);
             $schemaModel->columnKey = $row['COLUMN_KEY'];
             $schemaModel->extra = $row['EXTRA'];
             return $schemaModel;
         };
     }
 
-    private function snakeCaseToCamelCase(string $string)
+    public static function snakeCaseToCamelCase(string $string)
     {
             $camelCaseAttrName = ucfirst(strtolower($string));
             $underscorePositions = [];
@@ -51,8 +52,9 @@ class EloquentModelsGeneration
         $db = new AiresDb();
 
         try {
-            $db->connect();
 
+            echo "Connecting to database..." . PHP_EOL;
+            $db->connect();
             $sql = <<<SQL
                 SELECT
                     TABLE_NAME,
@@ -68,23 +70,46 @@ class EloquentModelsGeneration
             SQL;
             $binds = ['dbName' => $db->getDatabase()];
             $db->query($sql, $binds);
+            echo "Reading query result..." . PHP_EOL;
             $tablesObjList = $db->getResultArray($this->mapperSchemaModel());
             return $tablesObjList;
         } catch (Exception $exception){
-            echo "Error on connection to database.";
+            echo $exception->getMessage() . PHP_EOL;
+            echo "Error on connection to database." . PHP_EOL;
             return new Collection();
         }
     }
 
+    private function mapType(string $type): string
+    {
+        $types = [
+            'int' => 'int',
+            'varchar' => 'string',
+            'decimal' => 'float',
+            'float' => 'float',
+            'char' => 'float',
+            'bool' => 'bool',
+            'blob' => 'string',
+            'text' => 'string',
+            'date' => 'string',
+            'time' => 'string',
+            'year' => 'string',
+            'double' => 'float',
+            'datetime' => 'string',
+        ];
+        return $types[$type];
+    }
 
     private function tables(Collection $columns): Collection
     {
+        echo "Mapping query result..." . PHP_EOL;
         $tables = new Collection();
         $j = 0;
         $columns->each(function (ColumnSchemaModel $column) use (&$tables, &$j)
         {
             if ($j === 0 || $tables->get($j - 1)->name !== $column->tableName)
             {
+                echo "Mapping table {$column->tableName}..." . PHP_EOL;
                 $table = new TableSchemaModel();
                 $table->name = $column->tableName;
                 $table->columns = new Collection();
@@ -98,13 +123,22 @@ class EloquentModelsGeneration
         return $tables;
     }
 
+    private function generateFiles(Collection $tables)
+    {
+        $tables->each(function (TableSchemaModel $table)
+        {
+            $dir = __DIR__ .  '/EloquentModels/' . ucfirst(self::snakeCaseToCamelCase($table->name) . '.php');
+            echo "Create class of table \"{$table->name}\" on $dir." . PHP_EOL;
+            $file = fopen($dir, 'w');
+            fwrite($file, $table->generateClass());
+            fclose($file);
+        });
+    }
+
     public function run(): void
     {
         $columns = $this->schema();
         $tables = $this->tables($columns);
-        $tables->each(function (TableSchemaModel $table)
-        {
-            echo $table->generateClass();
-        });
+        $this->generateFiles($tables);
     }
 }
