@@ -5,11 +5,15 @@ namespace App\Src\Business\Services;
 
 use App\Src\Business\Exceptions\NotFoundException;
 use App\Src\Business\Exceptions\ValidationErrorException;
+use App\Src\Business\Mappers\Interfaces\IUserCreateMapper;
 use App\Src\Business\Mappers\UserCreateMapper;
+use App\Src\Business\Services\Interfaces\IUserService;
 use App\Src\Business\Validations\UserCreateValidation;
+use App\Src\Data\Dao\Interfaces\IUserDb;
 use App\Src\Data\Dao\UserDb;
 use App\Src\Data\Exceptions\DatabaseConnectionException;
 use App\Src\Data\Exceptions\PdoFetchFailureException;
+use App\Src\Data\Repositories\Interfaces\IUserRepository;
 use App\Src\Data\Repositories\UserRepository;
 use App\Src\Domain\RequestModels\UserCreateRequestModel;
 use App\Src\Domain\ResponseModels\UserResponseModel;
@@ -20,28 +24,40 @@ use Illuminate\Support\Collection;
  * Class UserService
  * @package App\Src\Business\Services
  */
-class UserService
+class UserService implements IUserService
 {
+    private IUserDb $userDb;
+    private IUserCreateMapper $userCreateMapper;
+    private IUserRepository $userRepository;
+
+    public function __construct(
+        IUserDb $userDb,
+        IUserCreateMapper $userCreateMapper,
+        IUserRepository $userRepository
+    )
+    {
+       $this->userDb = $userDb;
+       $this->userCreateMapper = $userCreateMapper;
+       $this->userRepository = $userRepository;
+    }
+
     /**
      * @return Collection
-     * @throws PdoFetchFailureException
-     * @throws DatabaseConnectionException
      */
-    public static function getUserList(): Collection
+    public function getUserList(): Collection
     {
-        return UserDb::getUserList();
+        return $this->userDb->getUserList();
     }
 
     /**
      * @param int $userId
      * @return UserResponseModel
      * @throws NotFoundException
-     * @throws DatabaseConnectionException
      */
-    public static function getUserById(int $userId): UserResponseModel
+    public function getUserById(int $userId): UserResponseModel
     {
         try {
-            $user = UserDb::getUserById($userId);
+            $user = $this->userDb->getUserById($userId);
         } catch (PdoFetchFailureException $fetchFailureException) {
            throw new NotFoundException("User not found.");
         }
@@ -51,13 +67,13 @@ class UserService
     /**
      * @throws ValidationErrorException
      */
-    public static function createUser(UserCreateRequestModel $userRequest): int
+    public function createUser(UserCreateRequestModel $userRequest): int
     {
-        $mapper = new UserCreateMapper($userRequest);
         $validation = new UserCreateValidation();
         try {
-           $user = $mapper->getUser();
-           return UserRepository::create($user);
+           $this->userCreateMapper->setBaseMapping($userRequest);
+           $user = $this->userCreateMapper->getUser();
+           return $this->userRepository->create($user);
         } catch (QueryException $exception) {
            $validation->validatePersistenceErrors($exception);
            return 0;

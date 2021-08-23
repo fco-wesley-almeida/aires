@@ -134,6 +134,4 @@ class UserCreateRequestModel extends RequestModel
         $this->birthDate = $birthDate;
         return $this;
     }
-
-
 }

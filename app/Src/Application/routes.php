@@ -1,6 +1,8 @@
 <?php
 
 use App\Src\Application\Controllers\UserController;
+use App\Src\Business\Services\Interfaces\IUserService;
+use App\Src\Business\Services\UserService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+//$this->app->bind(IUserService::class, UserService::class);
 
 Route::get('/user', [UserController::class, 'getUserList']);
 Route::get('/user/{id}', [UserController::class, 'getUser']);

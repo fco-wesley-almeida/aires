@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Src\Business\Services\Interfaces\IUserService;
+use App\Src\Business\Services\UserService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $dependencyInjection = new DependencyInjection($this->app);
+        $dependencyInjection->configure();
     }
 
     /**

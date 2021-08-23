@@ -3,8 +3,8 @@
 namespace App\Src\Application\Controllers;
 
 use App\Src\Business\Mappers\GenericMapper;
+use App\Src\Business\Services\Interfaces\IUserService;
 use App\Src\Business\Services\LogService;
-use App\Src\Business\Services\UserService;
 use App\Src\Business\Utils\HttpUtils;
 use App\Src\Business\Validations\UserCreateValidation;
 use App\Src\Domain\ApplicationModels\BaseResponse;
@@ -14,11 +14,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
+    private IUserService $userService;
+
+    public function __construct(IUserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function getUserList(): void
     {
         try
         {
-            $userCollection = UserService::getUserList();
+            $userCollection = $this->userService->getUserList();
             $userArray = GenericMapper::CollectionToArray($userCollection);
             BaseResponse::builder()
                 ->setMessage("Users found")
@@ -35,7 +42,7 @@ class UserController extends Controller
     {
         try
         {
-            $user = UserService::getUserById($userId)->toArray();
+            $user = $this->userService->getUserById($userId)->toArray();
             BaseResponse::builder()
                 ->setMessage("User found")
                 ->setData($user)
@@ -54,11 +61,11 @@ class UserController extends Controller
             $validation = new UserCreateValidation();
             $validation->applyValidations(HttpUtils::requestBody());
             $user = new UserCreateRequestModel();
-            $id = UserService::createUser($user);
+            $id = $this->userService->createUser($user);
             if (!$id) {
                 BaseResponse::builder()
                     ->setMessage("Failure on user registration.")
-                    ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST)
                     ->respond();
             }
             BaseResponse::builder()

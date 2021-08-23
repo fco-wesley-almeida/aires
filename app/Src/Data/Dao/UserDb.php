@@ -5,6 +5,7 @@ namespace App\Src\Data\Dao;
 
 
 use App\Src\Data\Dao\Interfaces\DbInstance;
+use App\Src\Data\Dao\Interfaces\IUserDb;
 use App\Src\Data\Databases\AiresDb;
 use App\Src\Data\Exceptions\DatabaseConnectionException;
 use App\Src\Data\Exceptions\PdoFetchFailureException;
@@ -12,9 +13,9 @@ use App\Src\Domain\ResponseModels\UserResponseModel;
 use Exception;
 use Illuminate\Support\Collection;
 
-class UserDb implements DbInstance
+class UserDb implements DbInstance, IUserDb
 {
-    public static function mapper(): callable
+    public function mapper(): callable
     {
         return function (array $row): UserResponseModel
         {
@@ -34,7 +35,7 @@ class UserDb implements DbInstance
      * @throws PdoFetchFailureException
      * @throws Exception
      */
-    public static function getUserList(): Collection
+    public function getUserList(): Collection
     {
         $db = new AiresDb();
         $sql = <<<SQL
@@ -52,7 +53,7 @@ class UserDb implements DbInstance
         $binds = [];
         $db->connect();
         $db->query($sql, $binds);
-        $userList = $db->getResultArray(self::mapper());
+        $userList = $db->getResultArray($this->mapper());
         return $userList;
     }
 
@@ -61,7 +62,7 @@ class UserDb implements DbInstance
      * @throws PdoFetchFailureException
      * @throws Exception
      */
-    public static function getUserById(int $userId): UserResponseModel
+    public function getUserById(int $userId): UserResponseModel
     {
         $db = new AiresDb();
         $sql = <<<SQL
@@ -83,7 +84,7 @@ class UserDb implements DbInstance
         ];
         $db->connect();
         $db->query($sql, $binds);
-        $user = $db->getResultObj(self::mapper());
+        $user = $db->getResultObj($this->mapper());
         return $user;
     }
 }
