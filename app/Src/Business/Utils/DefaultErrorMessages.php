@@ -18,4 +18,5 @@ class DefaultErrorMessages
     public const MIN_CHARACTERS = "This text did not satisfied the minimum length.";
     public const MAX_CHARACTERS = "This text did not satisfied the maximum length.";
     public const INVALID_EMAIL = "This input must to be a valid email.";
+    public const NOT_FOUND = "Record not found.";
 }

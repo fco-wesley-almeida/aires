@@ -14,7 +14,6 @@ class EloquentModel extends Model
 
     /**
      * @throws Exception
-     * @var mixed
      */
 
     public function createTree(): bool
