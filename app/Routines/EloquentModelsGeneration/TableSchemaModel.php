@@ -10,11 +10,13 @@ class TableSchemaModel
 {
     public string $name;
     public Collection $columns;
+    public Collection $relations;
     public function generateClass(): string
     {
         $name = $this->name;
         $columns = $this->columns->toArray();
-        $data = [$name, $columns];
+        $relations = $this->relations->toArray();
+        $data = [$name, $columns, $relations];
         extract($data);
         ob_start();
         include 'classModel.php';

@@ -18,6 +18,9 @@ class UserCreateMapper extends Mapper
     private Customer $customer;
     private Password $password;
     private Person $person;
+    /**
+     * @var Person[]
+     */
 
     public function __construct(UserCreateRequestModel $userRequest)
     {
@@ -32,19 +35,21 @@ class UserCreateMapper extends Mapper
     {
         $this->user->email = $this->userRequest->getEmail();
         $this->user->nickname = $this->userRequest->getNickname();
+        $this->user->people = [$this->getPerson()];
+        $this->user->customers = [$this->getCustomer()];
+        $this->user->people = [$this->getPerson()];
+        $this->user->passwords = [$this->getPassword()];
         return $this->user;
     }
 
     public function getCustomer(): Customer
     {
-        $this->customer->user_id = $this->user->id;
         return $this->customer;
     }
 
     public function getPerson(): Person
     {
         $this->person->alias = $this->userRequest->getAlias();
-        $this->person->user_id = $this->user->id;
         $this->person->name = $this->userRequest->getName();
         $this->person->birth_date = $this->userRequest->getBirthDate();
         return $this->person;
@@ -52,7 +57,6 @@ class UserCreateMapper extends Mapper
 
     public function getPassword(): Password
     {
-        $this->password->user_id = $this->user->id;
         $this->password->password = $this->userRequest->getPassword();
         return $this->password;
     }

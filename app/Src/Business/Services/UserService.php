@@ -56,7 +56,8 @@ class UserService
         $mapper = new UserCreateMapper($userRequest);
         $validation = new UserCreateValidation();
         try {
-           return UserRepository::create($mapper);
+           $user = $mapper->getUser();
+           return UserRepository::create($user);
         } catch (QueryException $exception) {
            $validation->validatePersistenceErrors($exception);
         }
