@@ -4,12 +4,13 @@ namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
+/*
  * @property int $id
  * @property ConversationMessage[] $conversationMessages
- */
-class Conversation extends Model
+*/
+class Conversation extends EloquentModel
 {
     /**
      * The table associated with the model.
@@ -18,16 +19,20 @@ class Conversation extends Model
      */
     protected $table = 'conversation';
 
+    public array $tree = [
+        'conversationMessages' => [ConversationMessage::class]
+    ];
+
+    public $timestamps = false;
+
     /**
      * @var array
      */
     protected $fillable = [];
-
-    /**
-     * @return HasMany
-     */
-    public function conversationMessages()
+    
+    public function getConversationMessages(): HasMany
     {
         return $this->hasMany(ConversationMessage::class);
     }
+
 }

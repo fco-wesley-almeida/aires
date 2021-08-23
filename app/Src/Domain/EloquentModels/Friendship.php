@@ -4,12 +4,13 @@ namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
+/*
  * @property int $id
  * @property Friend[] $friends
- */
-class Friendship extends Model
+*/
+class Friendship extends EloquentModel
 {
     /**
      * The table associated with the model.
@@ -18,16 +19,20 @@ class Friendship extends Model
      */
     protected $table = 'friendship';
 
+    public array $tree = [
+        'friends' => [Friend::class]
+    ];
+
+    public $timestamps = false;
+
     /**
      * @var array
      */
     protected $fillable = [];
-
-    /**
-     * @return HasMany
-     */
-    public function friends()
+    
+    public function getFriends(): HasMany
     {
         return $this->hasMany(Friend::class);
     }
+
 }

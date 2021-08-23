@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Src\Domain\EloquentModels;
+namespace App\Routines\EloquentModelsGeneration;
 
 
 use Exception;

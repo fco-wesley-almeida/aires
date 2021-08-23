@@ -61,8 +61,10 @@ class <?= ucfirst(StringUtils::snakeCaseToCamelCase($name))?> extends <?=Eloquen
                 $className = lcfirst($className);
                 if (!$relation->isUnique) {
                     $className = StringUtils::pluralizeWord($className);
+                    echo "$tab$tab'$className' => [$classNamePascalCase::class]";
+                } else {
+                    echo "$tab$tab'$className' => $classNamePascalCase::class";
                 }
-                echo "$tab$tab'$className' => [$classNamePascalCase::class]";
                 if ($i !== $relationNumber -1){
                     echo ',';
                 }
@@ -72,6 +74,19 @@ class <?= ucfirst(StringUtils::snakeCaseToCamelCase($name))?> extends <?=Eloquen
         }
     ?>
 
+    <?php
+        echo PHP_EOL;
+        $relations->each(function (RelationSchemaModel $relation) use ($tab)
+        {
+            $camelCaseProp = lcfirst(StringUtils::snakeCaseToCamelCase($relation->sonTable));
+            $type = $relation->isUnique ? ucfirst($camelCaseProp) : "array";
+            if (!$relation->isUnique) {
+               $camelCaseProp = StringUtils::pluralizeWord($camelCaseProp);
+            }
+            $prop = "public ?$type \$$camelCaseProp = null;";
+            echo $tab.$prop.PHP_EOL;
+        });
+    ?>
     public $timestamps = false;
 
     /**

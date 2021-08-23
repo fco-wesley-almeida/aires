@@ -3,15 +3,15 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
+/*
  * @property int $id
  * @property int $post_id
  * @property string $path
- * @property Post $post
- */
-class PostImage extends Model
+*/
+class PostImage extends EloquentModel
 {
     /**
      * The table associated with the model.
@@ -20,16 +20,12 @@ class PostImage extends Model
      */
     protected $table = 'post_image';
 
+    public array $tree = [];
+    public $timestamps = false;
+
     /**
      * @var array
      */
     protected $fillable = ['post_id', 'path'];
-
-    /**
-     * @return BelongsTo
-     */
-    public function post(): BelongsTo
-    {
-        return $this->belongsTo(Post::class);
-    }
+    
 }

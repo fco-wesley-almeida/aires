@@ -3,22 +3,21 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
+/*
  * @property int $id
  * @property int $user_id
- * @property User $user
  * @property ConversationMessage[] $conversationMessages
  * @property Friend[] $friends
- * @property FriendshipInvitation[] $requesterFriendshipInvitations
- * @property FriendshipInvitation[] $targetFriendshipInvitations
+ * @property FriendshipInvitation[] $friendshipInvitations
+ * @property FriendshipInvitation[] $friendshipInvitations
  * @property GroupParticipant[] $groupParticipants
  * @property Post[] $posts
  * @property PostComment[] $postComments
- */
-class Customer extends Model
+*/
+class Customer extends EloquentModel
 {
     /**
      * The table associated with the model.
@@ -26,73 +25,57 @@ class Customer extends Model
      * @var string
      */
     protected $table = 'customer';
+
+    public array $tree = [
+        'conversationMessages' => [ConversationMessage::class],
+        'friends' => [Friend::class],
+        'friendshipInvitations' => [FriendshipInvitation::class],
+        'friendshipInvitations' => [FriendshipInvitation::class],
+        'groupParticipants' => [GroupParticipant::class],
+        'posts' => [Post::class],
+        'postComments' => [PostComment::class],
+    ];
+
     public $timestamps = false;
+
     /**
      * @var array
      */
     protected $fillable = ['user_id'];
-
-    /**
-     * @return BelongsTo
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function conversationMessages(): HasMany
+    
+    public function getConversationMessages(): HasMany
     {
         return $this->hasMany(ConversationMessage::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function friends(): HasMany
+    public function getFriends(): HasMany
     {
         return $this->hasMany(Friend::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function requesterFriendshipInvitations(): HasMany
+    public function getFriendshipInvitations(): HasMany
     {
-        return $this->hasMany(FriendshipInvitation::class, 'requester_customer_id');
+        return $this->hasMany(FriendshipInvitation::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function targetFriendshipInvitations(): HasMany
+    public function getFriendshipInvitations(): HasMany
     {
-        return $this->hasMany(FriendshipInvitation::class, 'target_customer_id');
+        return $this->hasMany(FriendshipInvitation::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function groupParticipants(): HasMany
+    public function getGroupParticipants(): HasMany
     {
         return $this->hasMany(GroupParticipant::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function posts(): HasMany
+    public function getPosts(): HasMany
     {
-        return $this->hasMany(Post::class, 'author_customer_id');
+        return $this->hasMany(Post::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function postComments(): HasMany
+    public function getPostComments(): HasMany
     {
         return $this->hasMany(PostComment::class);
     }
+
 }

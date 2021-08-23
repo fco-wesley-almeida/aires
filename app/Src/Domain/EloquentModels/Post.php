@@ -3,21 +3,19 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
+/*
  * @property int $id
  * @property int $author_customer_id
  * @property string $register_date
  * @property int $likes
- * @property Customer $customer
  * @property PostComment[] $postComments
  * @property PostImage[] $postImages
  * @property PostText $postText
- */
-class Post extends Model
+*/
+class Post extends EloquentModel
 {
     /**
      * The table associated with the model.
@@ -26,40 +24,32 @@ class Post extends Model
      */
     protected $table = 'post';
 
+    public array $tree = [
+        'postComments' => [PostComment::class],
+        'postImages' => [PostImage::class],
+        'postText' => [PostText::class],
+    ];
+
+    public $timestamps = false;
+
     /**
      * @var array
      */
     protected $fillable = ['author_customer_id', 'register_date', 'likes'];
-
-    /**
-     * @return BelongsTo
-     */
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class, 'author_customer_id');
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function postComments(): HasMany
+    
+    public function getPostComments(): HasMany
     {
         return $this->hasMany(PostComment::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function postImages(): HasMany
+    public function getPostImages(): HasMany
     {
         return $this->hasMany(PostImage::class);
     }
 
-    /**
-     * @return HasOne
-     */
-    public function postText(): HasOne
+    public function getPostText(): HasOne
     {
-        return $this->hasOne(PostText::class, 'post_id');
+        return $this->hasOne(PostText::class);
     }
+
 }

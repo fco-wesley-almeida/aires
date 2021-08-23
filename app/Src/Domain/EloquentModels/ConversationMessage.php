@@ -3,17 +3,16 @@
 namespace App\Src\Domain\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
+/*
  * @property int $id
  * @property int $customer_id
  * @property int $conversation_id
  * @property string $message
- * @property Conversation $conversation
- * @property Customer $customer
- */
-class ConversationMessage extends Model
+*/
+class ConversationMessage extends EloquentModel
 {
     /**
      * The table associated with the model.
@@ -22,24 +21,12 @@ class ConversationMessage extends Model
      */
     protected $table = 'conversation_message';
 
+    public array $tree = [];
+    public $timestamps = false;
+
     /**
      * @var array
      */
     protected $fillable = ['customer_id', 'conversation_id', 'message'];
-
-    /**
-     * @return BelongsTo
-     */
-    public function conversation(): BelongsTo
-    {
-        return $this->belongsTo(Conversation::class);
-    }
-
-    /**
-     * @return BelongsTo
-     */
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class);
-    }
+    
 }
