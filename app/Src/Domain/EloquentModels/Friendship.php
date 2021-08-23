@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property Friend[] $friends
 */
@@ -23,6 +23,8 @@ class Friendship extends EloquentModel
         'friends' => [Friend::class]
     ];
 
+    
+    public ?array $friends = null;
     public $timestamps = false;
 
     /**

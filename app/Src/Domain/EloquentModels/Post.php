@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property int $author_customer_id
  * @property string $register_date
@@ -27,9 +27,13 @@ class Post extends EloquentModel
     public array $tree = [
         'postComments' => [PostComment::class],
         'postImages' => [PostImage::class],
-        'postText' => [PostText::class],
+        'postText' => PostText::class,
     ];
 
+    
+    public ?array $postComments = null;
+    public ?array $postImages = null;
+    public ?PostText $postText = null;
     public $timestamps = false;
 
     /**

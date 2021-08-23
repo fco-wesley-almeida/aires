@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property int $user_id
 */
@@ -20,6 +20,7 @@ class Admin extends EloquentModel
     protected $table = 'admin';
 
     public array $tree = [];
+    
     public $timestamps = false;
 
     /**

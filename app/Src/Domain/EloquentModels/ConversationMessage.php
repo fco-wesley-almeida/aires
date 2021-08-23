@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property int $customer_id
  * @property int $conversation_id
@@ -22,6 +22,7 @@ class ConversationMessage extends EloquentModel
     protected $table = 'conversation_message';
 
     public array $tree = [];
+    
     public $timestamps = false;
 
     /**

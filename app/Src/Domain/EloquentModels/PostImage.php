@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property int $post_id
  * @property string $path
@@ -21,6 +21,7 @@ class PostImage extends EloquentModel
     protected $table = 'post_image';
 
     public array $tree = [];
+    
     public $timestamps = false;
 
     /**

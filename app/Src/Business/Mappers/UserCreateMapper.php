@@ -35,9 +35,8 @@ class UserCreateMapper extends Mapper
     {
         $this->user->email = $this->userRequest->getEmail();
         $this->user->nickname = $this->userRequest->getNickname();
-        $this->user->people = [$this->getPerson()];
         $this->user->customers = [$this->getCustomer()];
-        $this->user->people = [$this->getPerson()];
+        $this->user->person = $this->getPerson();
         $this->user->passwords = [$this->getPassword()];
         return $this->user;
     }

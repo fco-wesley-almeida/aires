@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property ConversationMessage[] $conversationMessages
 */
@@ -23,6 +23,8 @@ class Conversation extends EloquentModel
         'conversationMessages' => [ConversationMessage::class]
     ];
 
+    
+    public ?array $conversationMessages = null;
     public $timestamps = false;
 
     /**

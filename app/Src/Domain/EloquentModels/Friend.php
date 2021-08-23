@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property int $customer_id
  * @property int $friendship_id
@@ -21,6 +21,7 @@ class Friend extends EloquentModel
     protected $table = 'friend';
 
     public array $tree = [];
+    
     public $timestamps = false;
 
     /**

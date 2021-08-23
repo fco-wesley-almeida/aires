@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property string $name
  * @property GroupParticipant[] $groupParticipants
@@ -24,6 +24,8 @@ class Group extends EloquentModel
         'groupParticipants' => [GroupParticipant::class]
     ];
 
+    
+    public ?array $groupParticipants = null;
     public $timestamps = false;
 
     /**

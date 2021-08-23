@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\DB;
 class EloquentModel extends Model
 {
     public array $tree = [];
+
     /**
+     * @throws Exception
      * @var mixed
      */
 
@@ -47,17 +49,21 @@ class EloquentModel extends Model
                         }
                     });
                     break;
-//                case 'string':
-//                    $model = $this[$key];
-//                    if (get_class($model) !== $node)
-//                    {
-//                        throw new Exception("Expected type is $node. Found was " . get_class($model) . ".");
-//                    }
-//                    if (!$model->save())
-//                    {
-//                        throw new Exception("Failure on save model" . $node);
-//                    }
-//                    break;
+                case 'string':
+                    $model = $this->$key;
+                    if ($model === null) break;
+                    if (get_class($model) !== $node)
+                    {
+                        throw new Exception("Expected type is $node. Found was " . get_class($model) . ".");
+                    }
+                    $key = $this->table . "_id";
+                    $id = 'id';
+                    $model->$key = $this->$id;
+                    if (!$model->save())
+                    {
+                        throw new Exception("Failure on save model" . $node);
+                    }
+                    break;
                 default:
                     throw new Exception("Type wrong on " . self::class);
             }

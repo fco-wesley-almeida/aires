@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property string $password
  * @property int $user_id
@@ -21,6 +21,7 @@ class Password extends EloquentModel
     protected $table = 'password';
 
     public array $tree = [];
+    
     public $timestamps = false;
 
     /**

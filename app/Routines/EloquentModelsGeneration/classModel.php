@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
 <?php
     $columns->each(function (ColumnSchemaModel $column) {
        echo " * @property {$column->dataType} \${$column->columnName}" . PHP_EOL;

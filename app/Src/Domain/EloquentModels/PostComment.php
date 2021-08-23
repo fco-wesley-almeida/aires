@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property int $post_id
  * @property int $customer_id
@@ -23,6 +23,7 @@ class PostComment extends EloquentModel
     protected $table = 'post_comment';
 
     public array $tree = [];
+    
     public $timestamps = false;
 
     /**

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/*
+/**
  * @property int $id
  * @property int $customer_id
  * @property int $group_id
@@ -21,6 +21,7 @@ class GroupParticipant extends EloquentModel
     protected $table = 'group_participant';
 
     public array $tree = [];
+    
     public $timestamps = false;
 
     /**
